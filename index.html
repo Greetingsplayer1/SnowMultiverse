@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Canvas with Functions</title>
+</head>
+<body>
+    <h1>Canvas with functions</h1>
+    <canvas width="800" height="800" id="myCanvas">
+    </canvas>
+    <script>
+const canvas = document.getElementById("myCanvas");
+const ctx = canvas.getContext("2d");
+
+// --- Helper Functions ---
+function fillRectWithColor(x, y, width, height, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, width, height);
+}
+
+function fillCircleWithColor(x, y, r, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.fill();
+}
+
+function drawSnowman(x, y, size) {
+    fillCircleWithColor(x, y - (12 * size), 6 * size, "white");  // Head
+    fillCircleWithColor(x, y, 10 * size, "white");             // Body
+    fillCircleWithColor(x, y + (15 * size), 14 * size, "white"); // Base
+}
+
+// Background wall
+fillRectWithColor(0, 0, 800, 800, "#444");
+
+// --- 100 INDIVIDUAL WINDOWS AND SNOWMEN ---
+
+// Row 1
+fillRectWithColor(0, 0, 78, 78, "skyblue"); drawSnowman(40, 35, 1.0);
+fillRectWithColor(80, 0, 78, 78, "lightpink"); drawSnowman(120, 35, 0.8);
+fillRectWithColor(160, 0, 78, 78, "lightgreen"); drawSnowman(200, 35, 1.1);
+fillRectWithColor(240, 0, 78, 78, "gold"); drawSnowman(280, 35, 0.9);
+fillRectWithColor(320, 0, 78, 78, "orange"); drawSnowman(360, 35, 1.2);
+fillRectWithColor(400, 0, 78, 78, "cyan"); drawSnowman(440, 35, 0.7);
+fillRectWithColor(480, 0, 78, 78, "magenta"); drawSnowman(520, 35, 1.0);
+fillRectWithColor(560, 0, 78, 78, "yellow"); drawSnowman(600, 35, 1.3);
+fillRectWithColor(640, 0, 78, 78, "white"); drawSnowman(680, 35, 0.6);
+fillRectWithColor(720, 0, 78, 78, "salmon"); drawSnowman(760, 35, 1.1);
+
+// Row 2
+fillRectWithColor(0, 80, 78, 78, "violet"); drawSnowman(40, 115, 0.9);
+fillRectWithColor(80, 80, 78, 78, "lime"); drawSnowman(120, 115, 1.0);
+fillRectWithColor(160, 80, 78, 78, "coral"); drawSnowman(200, 115, 0.8);
+fillRectWithColor(240, 80, 78, 78, "aqua"); drawSnowman(280, 115, 1.2);
+fillRectWithColor(320, 80, 78, 78, "bisque"); drawSnowman(360, 115, 0.7);
+fillRectWithColor(400, 80, 78, 78, "crimson"); drawSnowman(440, 115, 1.1);
+fillRectWithColor(480, 80, 78, 78, "azure"); drawSnowman(520, 115, 1.0);
+fillRectWithColor(560, 80, 78, 78, "khaki"); drawSnowman(600, 115, 0.9);
+fillRectWithColor(640, 80, 78, 78, "orchid"); drawSnowman(680, 115, 1.4);
+fillRectWithColor(720, 80, 78, 78, "silver"); drawSnowman(760, 115, 0.8);
+
+// Row 3
+fillRectWithColor(0, 160, 78, 78, "brown"); drawSnowman(40, 195, 1.0);
+fillRectWithColor(80, 160, 78, 78, "navy"); drawSnowman(120, 195, 0.7);
+fillRectWithColor(160, 160, 78, 78, "olive"); drawSnowman(200, 195, 1.2);
+fillRectWithColor(240, 160, 78, 78, "teal"); drawSnowman(280, 195, 0.9);
+fillRectWithColor(320, 160, 78, 78, "maroon"); drawSnowman(360, 195, 1.1);
+fillRectWithColor(400, 160, 78, 78, "purple"); drawSnowman(440, 195, 0.8);
+fillRectWithColor(480, 160, 78, 78, "gray"); drawSnowman(520, 195, 1.0);
+fillRectWithColor(560, 160, 78, 78, "tan"); drawSnowman(600, 195, 1.3);
+fillRectWithColor(640, 160, 78, 78, "plum"); drawSnowman(680, 195, 0.6);
+fillRectWithColor(720, 160, 78, 78, "wheat"); drawSnowman(760, 195, 1.0);
+
+// Row 4
+fillRectWithColor(0, 240, 78, 78, "hotpink"); drawSnowman(40, 275, 1.1);
+fillRectWithColor(80, 240, 78, 78, "deepskyblue"); drawSnowman(120, 275, 0.9);
+fillRectWithColor(160, 240, 78, 78, "lawngreen"); drawSnowman(200, 275, 1.0);
+fillRectWithColor(240, 240, 78, 78, "tomato"); drawSnowman(280, 275, 0.7);
+fillRectWithColor(320, 240, 78, 78, "springgreen"); drawSnowman(360, 275, 1.2);
+fillRectWithColor(400, 240, 78, 78, "royalblue"); drawSnowman(440, 275, 0.8);
+fillRectWithColor(480, 240, 78, 78, "peru"); drawSnowman(520, 275, 1.1);
+fillRectWithColor(560, 240, 78, 78, "cadetblue"); drawSnowman(600, 275, 1.0);
+fillRectWithColor(640, 240, 78, 78, "indigo"); drawSnowman(680, 275, 0.9);
+fillRectWithColor(720, 240, 78, 78, "darkcyan"); drawSnowman(760, 275, 1.2);
+
+// Row 5
+fillRectWithColor(0, 320, 78, 78, "darkorange"); drawSnowman(40, 355, 1.0);
+fillRectWithColor(80, 320, 78, 78, "dodgerblue"); drawSnowman(120, 355, 0.8);
+fillRectWithColor(160, 320, 78, 78, "forestgreen"); drawSnowman(200, 355, 1.1);
+fillRectWithColor(240, 320, 78, 78, "firebrick"); drawSnowman(280, 355, 0.7);
+fillRectWithColor(320, 320, 78, 78, "mediumpurple"); drawSnowman(360, 355, 1.3);
+fillRectWithColor(400, 320, 78, 78, "darkkhaki"); drawSnowman(440, 355, 0.9);
+fillRectWithColor(480, 320, 78, 78, "lightslategray"); drawSnowman(520, 355, 1.0);
+fillRectWithColor(560, 320, 78, 78, "palevioletred"); drawSnowman(600, 355, 1.2);
+fillRectWithColor(640, 320, 78, 78, "seagreen"); drawSnowman(680, 355, 0.8);
+fillRectWithColor(720, 320, 78, 78, "sienna"); drawSnowman(760, 355, 1.1);
+
+// Row 6
+fillRectWithColor(0, 400, 78, 78, "steelblue"); drawSnowman(40, 435, 1.0);
+fillRectWithColor(80, 400, 78, 78, "yellowgreen"); drawSnowman(120, 435, 1.1);
+fillRectWithColor(160, 400, 78, 78, "thistle"); drawSnowman(200, 435, 0.9);
+fillRectWithColor(240, 400, 78, 78, "chocolate"); drawSnowman(280, 435, 1.2);
+fillRectWithColor(320, 400, 78, 78, "mediumturquoise"); drawSnowman(360, 435, 0.7);
+fillRectWithColor(400, 400, 78, 78, "indianred"); drawSnowman(440, 435, 1.3);
+fillRectWithColor(480, 400, 78, 78, "chartreuse"); drawSnowman(520, 435, 1.0);
+fillRectWithColor(560, 400, 78, 78, "darkorchid"); drawSnowman(600, 435, 0.8);
+fillRectWithColor(640, 400, 78, 78, "rosybrown"); drawSnowman(680, 435, 1.1);
+fillRectWithColor(720, 400, 78, 78, "powderblue"); drawSnowman(760, 435, 1.0);
+
+// Row 7
+fillRectWithColor(0, 480, 78, 78, "mistyrose"); drawSnowman(40, 515, 0.9);
+fillRectWithColor(80, 480, 78, 78, "mediumblue"); drawSnowman(120, 515, 1.2);
+fillRectWithColor(160, 480, 78, 78, "darkgreen"); drawSnowman(200, 515, 0.8);
+fillRectWithColor(240, 480, 78, 78, "fuchsia"); drawSnowman(280, 515, 1.0);
+fillRectWithColor(320, 480, 78, 78, "darkgoldenrod"); drawSnowman(360, 515, 1.3);
+fillRectWithColor(400, 480, 78, 78, "lightblue"); drawSnowman(440, 515, 0.7);
+fillRectWithColor(480, 480, 78, 78, "darkred"); drawSnowman(520, 515, 1.1);
+fillRectWithColor(560, 480, 78, 78, "lightcyan"); drawSnowman(600, 515, 1.0);
+fillRectWithColor(640, 480, 78, 78, "mediumseagreen"); drawSnowman(680, 515, 0.9);
+fillRectWithColor(720, 480, 78, 78, "midnightblue"); drawSnowman(760, 515, 1.4);
+
+// Row 8
+fillRectWithColor(0, 560, 78, 78, "darkturquoise"); drawSnowman(40, 595, 1.0);
+fillRectWithColor(80, 560, 78, 78, "mediumvioletred"); drawSnowman(120, 595, 0.8);
+fillRectWithColor(160, 560, 78, 78, "moccasin"); drawSnowman(200, 595, 1.1);
+fillRectWithColor(240, 560, 78, 78, "darkviolet"); drawSnowman(280, 595, 0.9);
+fillRectWithColor(320, 560, 78, 78, "lightsalmon"); drawSnowman(360, 595, 1.2);
+fillRectWithColor(400, 560, 78, 78, "darkgray"); drawSnowman(440, 595, 0.7);
+fillRectWithColor(480, 560, 78, 78, "olivedrab"); drawSnowman(520, 595, 1.0);
+fillRectWithColor(560, 560, 78, 78, "peachpuff"); drawSnowman(600, 595, 1.3);
+fillRectWithColor(640, 560, 78, 78, "slateblue"); drawSnowman(680, 595, 0.6);
+fillRectWithColor(720, 560, 78, 78, "aquamarine"); drawSnowman(760, 595, 1.1);
+
+// Row 9
+fillRectWithColor(0, 640, 78, 78, "darkslateblue"); drawSnowman(40, 675, 1.1);
+fillRectWithColor(80, 640, 78, 78, "burlywood"); drawSnowman(120, 675, 0.9);
+fillRectWithColor(160, 640, 78, 78, "darkolivegreen"); drawSnowman(200, 675, 1.0);
+fillRectWithColor(240, 640, 78, 78, "lightskyblue"); drawSnowman(280, 675, 0.8);
+fillRectWithColor(320, 640, 78, 78, "mediumspringgreen"); drawSnowman(360, 675, 1.2);
+fillRectWithColor(400, 640, 78, 78, "navajowhite"); drawSnowman(440, 675, 0.7);
+fillRectWithColor(480, 640, 78, 78, "orchid"); drawSnowman(520, 675, 1.1);
+fillRectWithColor(560, 640, 78, 78, "palegreen"); drawSnowman(600, 675, 1.0);
+fillRectWithColor(640, 640, 78, 78, "peru"); drawSnowman(680, 675, 1.3);
+fillRectWithColor(720, 640, 78, 78, "plum"); drawSnowman(760, 675, 0.9);
+
+// Row 10
+fillRectWithColor(0, 720, 78, 78, "darkcyan"); drawSnowman(40, 755, 1.0);
+fillRectWithColor(80, 720, 78, 78, "lavender"); drawSnowman(120, 755, 1.2);
+fillRectWithColor(160, 720, 78, 78, "greenyellow"); drawSnowman(200, 755, 0.8);
+fillRectWithColor(240, 720, 78, 78, "lightcoral"); drawSnowman(280, 755, 1.1);
+fillRectWithColor(320, 720, 78, 78, "mediumaquamarine"); drawSnowman(360, 755, 0.7);
+fillRectWithColor(400, 720, 78, 78, "palevioletred"); drawSnowman(440, 755, 1.3);
+fillRectWithColor(480, 720, 78, 78, "skyblue"); drawSnowman(520, 755, 1.0);
+fillRectWithColor(560, 720, 78, 78, "wheat"); drawSnowman(600, 755, 0.9);
+fillRectWithColor(640, 720, 78, 78, "yellow"); drawSnowman(680, 755, 1.1);
+fillRectWithColor(720, 720, 78, 78, "white"); drawSnowman(760, 755, 1.0);
+
+    </script>
+</body>
