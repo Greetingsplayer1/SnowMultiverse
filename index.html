@@ -1,87 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-    <title>Canvas with Functions</title>
+<head>
+    <title>Snowman Multiverse</title>
+    <style>body { margin: 0; background: #000; overflow: hidden; }</style>
 </head>
 <body>
-    <h1>Canvas with functions</h1>
-    <canvas width="800" height="800" id="myCanvas">
-    </canvas>
+    <canvas id="myCanvas"></canvas>
     <script>
 const canvas = document.getElementById("myCanvas");
-canvas.width = 5000;
-canvas.height = 5000;
 const ctx = canvas.getContext("2d");
 
-// --- Drawing Helpers ---
-function fillRect(x, y, w, h, color) { ctx.fillStyle = color; ctx.fillRect(x, y, w, h); }
-function fillCircle(x, y, r, color) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, 2 * Math.PI);
-    ctx.fill();
-}
+const setup = () => {
+    canvas.width = 3000;
+    canvas.height = 3000;
+    canvas.style.width = "100vw";
+    canvas.style.height = "100vh";
+};
+setup();
+
+const CX = canvas.width / 2;
+const CY = canvas.height / 2;
 
 /**
- * Draws a Universe as a High-Def Solar System
- * @param {number} x, y - Top-left of the 100x100 window
- * @param {number} hue - Color theme
+ * Draws a high-detail snowman
+ * @param {number} x, y - Position
+ * @param {number} scale - Size multiplier
+ * @param {string} scarfColor - Custom scarf color
  */
-function drawDetailedSolarSystem(x, y, hue) {
-    const cx = x + 50; // Center X
-    const cy = y + 50; // Center Y
+function drawSnowman(x, y, scale, scarfColor = "#d32f2f") {
+    ctx.save();
+    ctx.translate(x, y);
+    
+    // Snow Body
+    ctx.fillStyle = "#ffffff";
+    ctx.shadowBlur = 15 * scale;
+    ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
+    [ {r: 20, y: 0}, {r: 14, y: -25}, {r: 10, y: -45} ].forEach(b => {
+        ctx.beginPath();
+        ctx.arc(0, b.y * scale, b.r * scale, 0, Math.PI * 2);
+        ctx.fill();
+    });
 
-    // 1. Deep Space Nebula Background
-    const spaceGrad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 50);
-    spaceGrad.addColorStop(0, `hsla(${hue}, 60%, 15%, 1)`);
-    spaceGrad.addColorStop(1, "#000");
-    fillRect(x, y, 100, 100, spaceGrad);
+    // Face Detail
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#ff9800"; // Carrot
+    ctx.beginPath();
+    ctx.moveTo(0, -45 * scale);
+    ctx.lineTo(12 * scale, -43 * scale);
+    ctx.lineTo(0, -41 * scale);
+    ctx.fill();
 
-    // 2. The Central Sun (Glowing)
-    const sunGlow = ctx.createRadialGradient(cx, cy, 2, cx, cy, 12);
-    sunGlow.addColorStop(0, `hsl(${hue}, 100%, 85%)`);
-    sunGlow.addColorStop(1, `hsla(${hue}, 100%, 50%, 0)`);
-    fillCircle(cx, cy, 12, sunGlow);
-    fillCircle(cx, cy, 6, "white");
+    // Eyes
+    ctx.fillStyle = "#1a1a1a";
+    ctx.beginPath();
+    ctx.arc(-3 * scale, -48 * scale, 1.5 * scale, 0, Math.PI * 2);
+    ctx.arc(3 * scale, -48 * scale, 1.5 * scale, 0, Math.PI * 2);
+    ctx.fill();
 
-    // 3. Planets with Snowmen inhabitants
-    const planetCount = 3 + (hue % 3); 
-    for (let i = 1; i <= planetCount; i++) {
-        // Calculate Orbit
-        const orbitDist = 15 + (i * 10);
-        const angle = (hue * i + (i * 45)) % (Math.PI * 2); 
-        const px = cx + Math.cos(angle) * orbitDist;
-        const py = cy + Math.sin(angle) * orbitDist;
+    // Scarf
+    ctx.fillStyle = scarfColor;
+    ctx.fillRect(-11 * scale, -35 * scale, 22 * scale, 5 * scale);
+    ctx.fillRect(4 * scale, -35 * scale, 4 * scale, 15 * scale);
+    
+    // Top Hat
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillRect(-14 * scale, -55 * scale, 28 * scale, 3 * scale);
+    ctx.fillRect(-8 * scale, -70 * scale, 16 * scale, 15 * scale);
 
-        // Draw Planet
-        const pColor = `hsl(${(hue + i * 40) % 360}, 40%, 50%)`;
-        fillCircle(px, py, 4, pColor);
-
-        // Draw Snowman on Planet (Head and Body)
-        fillCircle(px, py - 4, 2.5, "white"); // Body
-        fillCircle(px, py - 7, 1.5, "white"); // Head
-    }
-
-    // 4. Random Starfield Dust
-    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    for(let s=0; s<10; s++) {
-        ctx.fillRect(x + (hue*s*17)%95, y + (hue*s*13)%95, 1, 1);
-    }
+    ctx.restore();
 }
 
-// 1. Clear the canvas with the void
-fillRect(0, 0, 5000, 5000, "black");
+function drawUniverse() {
+    const time = Date.now() * 0.0002;
 
-// 2. The 50x50 Grid Loop (2,500 total Universes)
-for (let row = 0; row < 50; row++) {
-    for (let col = 0; col < 50; col++) {
-        const xPos = col * 100;
-        const yPos = row * 100;
-        const universeHue = (row * 7 + col * 11) % 360;
+    // 1. Space Background
+    const bg = ctx.createRadialGradient(CX, CY, 100, CX, CY, 1500);
+    bg.addColorStop(0, "#050a15");
+    bg.addColorStop(1, "#000000");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 2. The Sun (The Great White Dwarf)
+    const sunGlow = ctx.createRadialGradient(CX, CY, 0, CX, CY, 300);
+    sunGlow.addColorStop(0, "#ffffff");
+    sunGlow.addColorStop(0.3, "#b3e5fc");
+    sunGlow.addColorStop(1, "transparent");
+    ctx.fillStyle = sunGlow;
+    ctx.beginPath(); ctx.arc(CX, CY, 300, 0, Math.PI * 2); ctx.fill();
+    drawSnowman(CX, CY + 50, 2.5, "#ffcc00"); // The Sun King Snowman
+
+    // 3. Planet Definitions (Mercury to Neptune)
+    const planets = [
+        { name: "Mercury", dist: 400, size: 15, color: "#90a4ae", speed: 4.7 },
+        { name: "Venus", dist: 520, size: 28, color: "#fff9c4", speed: 3.5 },
+        { name: "Earth", dist: 680, size: 32, color: "#81d4fa", speed: 2.9, hasLife: true },
+        { name: "Mars", dist: 820, size: 22, color: "#ff8a65", speed: 2.4 },
+        // Asteroid Belt is handled separately
+        { name: "Jupiter", dist: 1100, size: 85, color: "#ce93d8", speed: 1.3 },
+        { name: "Saturn", dist: 1350, size: 70, color: "#ffe082", speed: 0.9, hasRings: true },
+        { name: "Uranus", dist: 1550, size: 45, color: "#b2ebf2", speed: 0.6 },
+        { name: "Neptune", dist: 1750, size: 45, color: "#5c6bc0", speed: 0.5 }
+    ];
+
+    // 4. Draw Asteroid Belt (Floating Ice)
+    for (let i = 0; i < 200; i++) {
+        let angle = time * 0.5 + (i * 0.2);
+        let d = 920 + (Math.sin(i) * 30);
+        let ax = CX + Math.cos(angle) * d;
+        let ay = CY + Math.sin(angle) * d;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        ctx.fillRect(ax, ay, 3, 3);
+    }
+
+    planets.forEach((p, i) => {
+        const angle = time * p.speed + (i * 50);
+        const px = CX + Math.cos(angle) * p.dist;
+        const py = CY + Math.sin(angle) * p.dist;
+
+        // Orbit Path
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.beginPath(); ctx.arc(CX, CY, p.dist, 0, Math.PI * 2); ctx.stroke();
+
+        // Rings for Saturn
+        if (p.hasRings) {
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+            ctx.lineWidth = 10;
+            ctx.beginPath();
+            ctx.ellipse(px, py, p.size * 2.2, p.size * 0.8, angle, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.lineWidth = 1;
+        }
+
+        // Planet Body
+        const grad = ctx.createRadialGradient(px - p.size/2, py - p.size/2, 0, px, py, p.size);
+        grad.addColorStop(0, p.color);
+        grad.addColorStop(1, "#050510");
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.arc(px, py, p.size, 0, Math.PI * 2); ctx.fill();
+
+        // Snowmen on Planets
+        const snowmanScale = p.size / 100;
+        drawSnowman(px, py - p.size, snowmanScale, p.hasLife ? "#4caf50" : "#d32f2f");
         
-        drawDetailedSolarSystem(xPos, yPos, universeHue);
-    }
+        // Add a Moon for Earth/Mars/etc
+        if(p.dist > 600) {
+            const mAngle = time * 10;
+            const mx = px + Math.cos(mAngle) * (p.size + 20);
+            const my = py + Math.sin(mAngle) * (p.size + 20);
+            ctx.fillStyle = "#fff";
+            ctx.beginPath(); ctx.arc(mx, my, 4, 0, Math.PI * 2); ctx.fill();
+            drawSnowman(mx, my - 4, 0.05);
+        }
+    });
+
+    requestAnimationFrame(drawUniverse);
 }
+
+drawUniverse();
 
     </script>
 </body>
+</html>
