@@ -103,6 +103,7 @@ function createStar(isStatic = false) {
 for(let i=0; i<STAR_COUNT; i++) stars.push(createStar(true));
 
 function updateStars(t) {
+    // 1. Draw Impact Explosions
     for (let i = explosions.length - 1; i >= 0; i--) {
         let e = explosions[i];
         ctx.fillStyle = `rgba(112, 214, 255, ${e.alpha})`;
@@ -110,21 +111,44 @@ function updateStars(t) {
         e.r += 2; e.alpha -= 0.04;
         if (e.alpha <= 0) explosions.splice(i, 1);
     }
+
+    // 2. Draw and Distort Stars
     for (let i = stars.length - 1; i >= 0; i--) {
         let s = stars[i];
+        
+        // Basic Gravity Pull
         const gravity = s.isSuckedIn ? (40000 / (s.dist * s.dist)) : 0.1;
         s.dist -= (s.speed + gravity);
+
+        // --- GRAVITY DISTORT START ---
+        // This makes stars "swirl" faster as they reach the event horizon
+        if (s.dist < 600) {
+            s.angle += (600 - s.dist) * 0.00001; 
+        }
+        // -----------------------------
+        
         s.angle += (gravity * 0.01);
+
+        // Calculate visual position
         let sx = center.x + Math.cos(s.angle) * s.dist;
         let sy = center.y + Math.sin(s.angle) * s.dist;
+        
+        // Calculate stretch (Tail)
+        const tailLength = s.dist < 500 ? 30 : 15; // Stretch more when close
+        let sEndx = center.x + Math.cos(s.angle) * (s.dist + tailLength);
+        let sEndy = center.y + Math.sin(s.angle) * (s.dist + tailLength);
+
+        // Render the star streak
         ctx.strokeStyle = s.color;
         ctx.lineWidth = s.size;
         ctx.globalAlpha = Math.min(1, s.dist / 400);
         ctx.beginPath();
         ctx.moveTo(sx, sy);
-        ctx.lineTo(center.x + Math.cos(s.angle) * (s.dist + 15), center.y + Math.sin(s.angle) * (s.dist + 15));
+        ctx.lineTo(sEndx, sEndy);
         ctx.stroke();
         ctx.globalAlpha = 1;
+
+        // If they hit the Event Horizon (radius ~200), explode
         if (s.dist < 195) {
             explosions.push({ x: sx, y: sy, r: 2, alpha: 1 });
             playImpact(800 + Math.random() * 400, 0.02);
@@ -133,6 +157,7 @@ function updateStars(t) {
         }
     }
 }
+
 
 // --- UNIVERSE & SNOWMAN LOGIC ---
 function createUniverse() {
@@ -186,26 +211,88 @@ function drawUniverse(u, time) {
 }
 
 function drawBlackHole(time) {
-    const r = 210;
+    const r = 210; // The Event Horizon radius
     ctx.save();
     ctx.translate(center.x, center.y);
-    
-    // Polar Beams
-    const jetGrad = ctx.createLinearGradient(0, -1000, 0, 1000);
-    jetGrad.addColorStop(0.5, "rgba(100, 220, 255, 0.7)");
-    ctx.fillStyle = jetGrad; ctx.fillRect(-8, -1200, 16, 2400);
 
-    // Accretion Disk (Gargantua Style)
-    ctx.save();
-    ctx.rotate(time * 0.3);
-    const disk = ctx.createRadialGradient(-70, 0, r, 0, 0, r * 3.5);
-    disk.addColorStop(0, "#ffffff"); disk.addColorStop(0.1, "#00e5ff"); disk.addColorStop(1, "transparent");
-    ctx.scale(2.8, 0.45); ctx.fillStyle = disk;
-    ctx.beginPath(); ctx.arc(0, 0, r * 3.5, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
+    // 1. GRAVITATIONAL LENSING (The Warped Arches)
+    // This draws the light bent by gravity from the back of the disk
+    ctx.strokeStyle = "rgba(0, 229, 255, 0.25)";
+    ctx.lineWidth = 25;
     
+    // Top Arch
+    ctx.beginPath();
+    ctx.ellipse(0, -15, r * 2.8, r * 1.6, 0, Math.PI, 0); 
+    ctx.stroke();
+    
+    // Bottom Arch
+    ctx.beginPath();
+    ctx.ellipse(0, 15, r * 2.8, r * 1.6, 0, 0, Math.PI); 
+    ctx.stroke();
+
+    // 2. ACCRETION DISK (The Horizontal Glowing Plasma)
+    ctx.save();
+    ctx.rotate(time * 0.2); // Slowly rotate the plasma
+    
+    // Use an offset (-80) to make the left side brighter (Doppler Boosting)
+    const diskGrad = ctx.createRadialGradient(-80, 0, r, 0, 0, r * 4);
+    diskGrad.addColorStop(0, "#ffffff"); // Pure heat
+    diskGrad.addColorStop(0.1, "#00e5ff"); // Blue shift
+    diskGrad.addColorStop(0.4, "rgba(0, 100, 255, 0.3)");
+    diskGrad.addColorStop(1, "transparent");
+    
+    ctx.scale(3.2, 0.45); // Flatten the disk for perspective
+    ctx.fillStyle = diskGrad;
+    
+    // Add a shimmering "heat" effect
+    const shimmer = Math.sin(time * 4) * 10;
+    ctx.beginPath(); 
+    ctx.arc(0, 0, r * 4 + shimmer, 0, Math.PI * 2); 
+    ctx.fill();
+    ctx.restore();
+
+    // 3. PHOTON SPHERE (The sharp white rim)
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+    ctx.lineWidth = 4;
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = "#00e5ff";
+    ctx.beginPath(); 
+    ctx.arc(0, 0, r + 6, 0, Math.PI * 2); 
+    ctx.stroke();
+    ctx.shadowBlur = 0; // Reset blur for performance
+
+        // --- ADD THIS DISTORTION LAYER (Place before Event Horizon) ---
+    const lensR = r * 1.4; 
+    const lensing = ctx.createRadialGradient(0, 0, r, 0, 0, lensR);
+    lensing.addColorStop(0, "rgba(255, 255, 255, 0.9)"); 
+    lensing.addColorStop(0.1, "rgba(100, 220, 255, 0.4)"); 
+    lensing.addColorStop(1, "transparent");
+
+    ctx.save();
+    ctx.scale(1.2, 0.8); 
+    ctx.fillStyle = lensing;
+    ctx.beginPath(); ctx.arc(0, 0, lensR, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    // --------------------------------------------------------------
+
+    // THE EVENT HORIZON (This should already be in your code)
     ctx.fillStyle = "black";
     ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+
+    // 4. THE EVENT HORIZON (The Shadow)
+    ctx.fillStyle = "black";
+    ctx.beginPath(); 
+    ctx.arc(0, 0, r, 0, Math.PI * 2); 
+    ctx.fill();
+
+    // 5. POLAR JETS (Vertical Energy Beams)
+    const jetGrad = ctx.createLinearGradient(0, -1000, 0, 1000);
+    jetGrad.addColorStop(0, "transparent");
+    jetGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.5)");
+    jetGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = jetGrad;
+    ctx.fillRect(-10, -1100, 20, 2200);
+
     ctx.restore();
 }
 
