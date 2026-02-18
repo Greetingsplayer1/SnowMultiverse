@@ -23,8 +23,8 @@ const ctx = cvs.getContext("2d");
 let universes = [];
 let stars = [];
 let explosions = [];
-const MAX_UNIVERSES = 14; 
-const STAR_COUNT = 7000;
+const MAX_UNIVERSES = 15; 
+const STAR_COUNT = 10000;
 
 // CROSS-BROWSER COORDINATE SYSTEM
 let center = { x: 0, y: 0 };
@@ -108,7 +108,7 @@ function updateStars(t) {
         let e = explosions[i];
         ctx.fillStyle = `rgba(112, 214, 255, ${e.alpha})`;
         ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2); ctx.fill();
-        e.r += 2; e.alpha -= 0.04;
+        e.r += 2; e.alpha -= .04;
         if (e.alpha <= 0) explosions.splice(i, 1);
     }
 
@@ -117,13 +117,13 @@ function updateStars(t) {
         let s = stars[i];
         
         // Basic Gravity Pull
-        const gravity = s.isSuckedIn ? (40000 / (s.dist * s.dist)) : 0.1;
+        const gravity = s.isSuckedIn ? (30000 / (s.dist * s.dist)) : .01;
         s.dist -= (s.speed + gravity);
 
         // --- GRAVITY DISTORT START ---
         // This makes stars "swirl" faster as they reach the event horizon
-        if (s.dist < 600) {
-            s.angle += (600 - s.dist) * 0.00001; 
+        if (s.dist < 450) {
+            s.angle += (600 - s.dist) * 0.00003; 
         }
         // -----------------------------
         
@@ -134,7 +134,7 @@ function updateStars(t) {
         let sy = center.y + Math.sin(s.angle) * s.dist;
         
         // Calculate stretch (Tail)
-        const tailLength = s.dist < 500 ? 30 : 15; // Stretch more when close
+        const tailLength = s.dist < 600 ? 30 : 15; // Stretch more when close
         let sEndx = center.x + Math.cos(s.angle) * (s.dist + tailLength);
         let sEndy = center.y + Math.sin(s.angle) * (s.dist + tailLength);
 
@@ -217,7 +217,7 @@ function drawBlackHole(time) {
 
     // 1. GRAVITATIONAL LENSING (The Warped Arches)
     // This draws the light bent by gravity from the back of the disk
-    ctx.strokeStyle = "rgba(0, 229, 255, 0.25)";
+    ctx.strokeStyle = "rgba(0, 290, 255, 0.25)";
     ctx.lineWidth = 25;
     
     // Top Arch
