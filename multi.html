@@ -24,7 +24,7 @@ let universes = [];
 let stars = [];
 let explosions = [];
 const MAX_UNIVERSES = 6; 
-const STAR_COUNT = 250;
+const STAR_COUNT = 5000;
 
 // CROSS-BROWSER COORDINATE SYSTEM
 let center = { x: 0, y: 0 };
@@ -262,7 +262,7 @@ function drawBlackHole(time) {
     ctx.shadowBlur = 0; // Reset blur for performance
 
         // --- ADD THIS DISTORTION LAYER (Place before Event Horizon) ---
-    const lensR = r * 1.4; 
+    const lensR = r * 2.5; 
     const lensing = ctx.createRadialGradient(0, 0, r, 0, 0, lensR);
     lensing.addColorStop(0, "rgba(255, 255, 255, 0.9)"); 
     lensing.addColorStop(0.1, "rgba(100, 220, 255, 0.4)"); 
@@ -291,7 +291,7 @@ function drawBlackHole(time) {
     jetGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.5)");
     jetGrad.addColorStop(1, "transparent");
     ctx.fillStyle = jetGrad;
-    ctx.fillRect(-10, -1100, 20, 2200);
+    ctx.fillRect(-10, -1100, 30, 2200);
 
     ctx.restore();
 }
