@@ -185,18 +185,58 @@ function drawUniverse(u, time) {
 }
 
 function drawBlackHole(time) {
-    const r = 200;
+    const r = 210; // Event Horizon Radius
     ctx.save();
     ctx.translate(CX, CY);
+
+    // 1. DISTANT GRAVITATIONAL LENSING (The Far Halo)
+    // This represents light from behind the black hole bent over the top
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.lineWidth = 15;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 2.8, r * 1.2, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 2. RELATIVISTIC JETS (The Polar Beams)
+    const jetGrad = ctx.createLinearGradient(0, -1000, 0, 1000);
+    jetGrad.addColorStop(0, "transparent");
+    jetGrad.addColorStop(0.5, "rgba(100, 220, 255, 0.7)");
+    jetGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = jetGrad;
+    ctx.fillRect(-8, -1200, 16, 2400);
+
+    // 3. PHOTON SPHERE (The Main Accretion Ring)
+    // We add a subtle "wobble" using Math.sin for realistic heat shimmer
     ctx.save();
-    ctx.rotate(time * 0.4);
-    const disk = ctx.createRadialGradient(-50, 0, r, 0, 0, r * 3);
-    disk.addColorStop(0, "#fff"); disk.addColorStop(0.1, "#00d2ff"); disk.addColorStop(1, "transparent");
-    ctx.scale(2.5, 0.35); ctx.fillStyle = disk;
-    ctx.beginPath(); ctx.arc(0, 0, r * 3, 0, Math.PI * 2); ctx.fill();
+    ctx.rotate(time * 0.3);
+    const disk = ctx.createRadialGradient(-70, 0, r, 0, 0, r * 3.5);
+    disk.addColorStop(0, "#ffffff"); // Hottest inner edge
+    disk.addColorStop(0.1, "#00e5ff"); // Relativistic blue-shift
+    disk.addColorStop(0.4, "rgba(0, 100, 255, 0.3)");
+    disk.addColorStop(1, "transparent");
+    
+    ctx.scale(2.8, 0.45); 
+    ctx.fillStyle = disk;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 3.5 + Math.sin(time*2)*5, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
+
+    // 4. THE SHADOW (Event Horizon)
+    // Pure black void with a soft lensing glow at the very edge
+    const edgeGlow = ctx.createRadialGradient(0, 0, r - 5, 0, 0, r + 5);
+    edgeGlow.addColorStop(0, "black");
+    edgeGlow.addColorStop(1, "rgba(255, 255, 255, 0.6)");
+    ctx.fillStyle = edgeGlow;
+    ctx.beginPath();
+    ctx.arc(0, 0, r + 5, 0, Math.PI * 2);
+    ctx.fill();
+    
     ctx.fillStyle = "black";
-    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fill();
+
     ctx.restore();
 }
 
