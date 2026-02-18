@@ -26,10 +26,30 @@ let explosions = [];
 const MAX_UNIVERSES = 6; 
 const STAR_COUNT = 250;
 
-// --- BALANCED AUDIO ENGINE ---
+// CROSS-BROWSER COORDINATE SYSTEM
+let center = { x: 0, y: 0 };
+
+function res() {
+    // 1. Set internal "drawing buffer" (The HD resolution)
+    cvs.width = 2400; 
+    cvs.height = 2400;
+    
+    // 2. Set external "display size" (What you actually see)
+    cvs.style.width = "100vw";
+    cvs.style.height = "100vh";
+    cvs.style.display = "block";
+
+    // 3. Sync the center coordinates to the buffer size
+    center.x = cvs.width / 2;
+    center.y = cvs.height / 2;
+}
+res();
+
+// --- BALANCED AUDIO ENGINE (CHROME & FIREFOX COMPATIBLE) ---
 let audioCtx;
 function startAudio() {
     document.getElementById('overlay').style.display = 'none';
+    // Cross-browser AudioContext initialization
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     // Constant Heavy Black Hole Thrum
@@ -42,7 +62,6 @@ function startAudio() {
     thrumGain.connect(audioCtx.destination);
     thrumOsc.start();
 
-    // Secondary Vortex Layer
     const vortexOsc = audioCtx.createOscillator();
     const vortexGain = audioCtx.createGain();
     vortexOsc.type = 'sine';
@@ -69,23 +88,10 @@ function playImpact(freq, vol) {
     osc.stop(audioCtx.currentTime + 0.4);
 }
 
-// --- SCREEN SCALING FIX ---
-function res() {
-    cvs.width = 2400; // Internal High-Def Resolution
-    cvs.height = 2400;
-    cvs.style.width = "100vw"; // Force to fit screen width
-    cvs.style.height = "100vh"; // Force to fit screen height
-}
-res();
-
-const CX = cvs.width / 2;
-const CY = cvs.height / 2;
-
-// --- STAR LOGIC ---
+// --- STAR LOGIC (UPDATED WITH center.x/y) ---
 function createStar(isStatic = false) {
     const angle = Math.random() * Math.PI * 2;
-    const maxDist = 2000;
-    const dist = isStatic ? Math.random() * maxDist : maxDist;
+    const dist = isStatic ? Math.random() * 2000 : 1500 + Math.random() * 500;
     return {
         angle: angle, dist: dist,
         speed: 0.2 + Math.random() * 1.5, 
@@ -109,14 +115,14 @@ function updateStars(t) {
         const gravity = s.isSuckedIn ? (40000 / (s.dist * s.dist)) : 0.1;
         s.dist -= (s.speed + gravity);
         s.angle += (gravity * 0.01);
-        let sx = CX + Math.cos(s.angle) * s.dist;
-        let sy = CY + Math.sin(s.angle) * s.dist;
+        let sx = center.x + Math.cos(s.angle) * s.dist;
+        let sy = center.y + Math.sin(s.angle) * s.dist;
         ctx.strokeStyle = s.color;
         ctx.lineWidth = s.size;
         ctx.globalAlpha = Math.min(1, s.dist / 400);
         ctx.beginPath();
         ctx.moveTo(sx, sy);
-        ctx.lineTo(CX + Math.cos(s.angle) * (s.dist + 15), CY + Math.sin(s.angle) * (s.dist + 15));
+        ctx.lineTo(center.x + Math.cos(s.angle) * (s.dist + 15), center.y + Math.sin(s.angle) * (s.dist + 15));
         ctx.stroke();
         ctx.globalAlpha = 1;
         if (s.dist < 195) {
@@ -128,9 +134,8 @@ function updateStars(t) {
     }
 }
 
-// --- UNIVERSE LOGIC ---
+// --- UNIVERSE & SNOWMAN LOGIC ---
 function createUniverse() {
-    const lifeTimer = Math.random() < 0.2 ? 200 : 800 + Math.random() * 1200; 
     return {
         id: Math.floor(Math.random() * 900) + 100,
         angle: Math.random() * Math.PI * 2,
@@ -140,7 +145,7 @@ function createUniverse() {
         hue: Math.random() * 360,
         opacity: 1,
         isDoomed: false, 
-        lifeTimer: lifeTimer,
+        lifeTimer: Math.random() < 0.2 ? 200 : 800 + Math.random() * 1200,
         age: 0
     };
 }
@@ -155,7 +160,7 @@ function drawSnowman(ctx, x, y, s, alpha) {
 function drawUniverse(u, time) {
     const stretch = (u.isDoomed && u.dist < 550) ? 1 + (550 - u.dist) / 150 : 1;
     ctx.save();
-    ctx.translate(CX + Math.cos(u.angle) * u.dist, CY + Math.sin(u.angle) * u.dist);
+    ctx.translate(center.x + Math.cos(u.angle) * u.dist, center.y + Math.sin(u.angle) * u.dist);
     ctx.scale(stretch, 1 / stretch);
     ctx.globalAlpha = u.opacity;
     const sz = u.size;
@@ -183,50 +188,38 @@ function drawUniverse(u, time) {
 function drawBlackHole(time) {
     const r = 210;
     ctx.save();
-    ctx.translate(CX, CY);
-
-    // 1. Far Lensing Halo
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-    ctx.lineWidth = 15;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, r * 2.8, r * 1.2, 0, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // 2. Polar Jets
+    ctx.translate(center.x, center.y);
+    
+    // Polar Beams
     const jetGrad = ctx.createLinearGradient(0, -1000, 0, 1000);
     jetGrad.addColorStop(0.5, "rgba(100, 220, 255, 0.7)");
     ctx.fillStyle = jetGrad; ctx.fillRect(-8, -1200, 16, 2400);
 
-    // 3. Accretion Disk (Gargantua Style)
+    // Accretion Disk (Gargantua Style)
     ctx.save();
     ctx.rotate(time * 0.3);
     const disk = ctx.createRadialGradient(-70, 0, r, 0, 0, r * 3.5);
-    disk.addColorStop(0, "#ffffff"); 
-    disk.addColorStop(0.1, "#00e5ff"); 
-    disk.addColorStop(1, "transparent");
+    disk.addColorStop(0, "#ffffff"); disk.addColorStop(0.1, "#00e5ff"); disk.addColorStop(1, "transparent");
     ctx.scale(2.8, 0.45); ctx.fillStyle = disk;
-    ctx.beginPath(); ctx.arc(0, 0, r * 3.5 + Math.sin(time*2)*5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, r * 3.5, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
     
-    // 4. Shadow Rim
-    const edgeGlow = ctx.createRadialGradient(0, 0, r - 5, 0, 0, r + 5);
-    edgeGlow.addColorStop(0, "black");
-    edgeGlow.addColorStop(1, "rgba(255, 255, 255, 0.6)");
-    ctx.fillStyle = edgeGlow;
-    ctx.beginPath(); ctx.arc(0, 0, r + 5, 0, Math.PI * 2); ctx.fill();
-
     ctx.fillStyle = "black";
     ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
 }
 
+// MAIN ANIMATION LOOP
 function loop() {
     const t = Date.now() * 0.001;
     ctx.fillStyle = "#010103";
     ctx.fillRect(0, 0, cvs.width, cvs.height);
+    
     updateStars(t);
     drawBlackHole(t);
+    
     if (universes.length < MAX_UNIVERSES) universes.push(createUniverse());
+    
     for (let i = universes.length - 1; i >= 0; i--) {
         let u = universes[i];
         u.angle += u.speed; u.age++;
@@ -240,8 +233,11 @@ function loop() {
     }
     requestAnimationFrame(loop);
 }
-window.onresize = () => { res(); CX = cvs.width/2; CY = cvs.height/2; };
+
+// Firefox fix: Use standard addEventListener
+window.addEventListener('resize', res);
 loop();
-    </script>
+</script>
+
 </body>
 </html>
