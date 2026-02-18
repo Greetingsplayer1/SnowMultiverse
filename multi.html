@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Snowman Multiverse: The Great Void</title>
+    <title>Snowman Multiverse: The Eternal Void</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
         #overlay {
@@ -25,31 +25,28 @@ let explosions = [];
 const MAX_UNIVERSES = 6; 
 const STAR_COUNT = 250;
 
-// --- AUDIO ENGINE ---
 // --- BALANCED AUDIO ENGINE ---
 let audioCtx;
-let blackHoleGain;
-
 function startAudio() {
     document.getElementById('overlay').style.display = 'none';
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // 1. Constant Low-Frequency Thrum
+    // 1. Constant Heavy Black Hole Thrum
     const thrumOsc = audioCtx.createOscillator();
     const thrumGain = audioCtx.createGain();
     thrumOsc.type = 'triangle'; 
-    thrumOsc.frequency.setValueAtTime(35, audioCtx.currentTime); // Very deep bass
-    thrumGain.gain.setValueAtTime(0.15, audioCtx.currentTime); // Louder thrum
+    thrumOsc.frequency.setValueAtTime(35, audioCtx.currentTime); 
+    thrumGain.gain.setValueAtTime(0.25, audioCtx.currentTime); // Louder thrum
     thrumOsc.connect(thrumGain);
     thrumGain.connect(audioCtx.destination);
     thrumOsc.start();
 
-    // 2. Secondary "Vortex" Sound (Higher sine layer for texture)
+    // 2. Secondary Vortex Layer
     const vortexOsc = audioCtx.createOscillator();
     const vortexGain = audioCtx.createGain();
     vortexOsc.type = 'sine';
     vortexOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
-    vortexGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    vortexGain.gain.setValueAtTime(0.12, audioCtx.currentTime);
     vortexOsc.connect(vortexGain);
     vortexGain.connect(audioCtx.destination);
     vortexOsc.start();
@@ -60,22 +57,19 @@ function playImpact(freq, vol) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     
-    // Scale volume: Stars (high freq) are now much quieter than Universes (low freq)
-    const balancedVol = freq > 500 ? vol * 0.2 : vol * 1.5; 
+    // Star volume is nerfed; Universe volume is boosted
+    const balancedVol = freq > 500 ? vol * 0.1 : vol * 1.8; 
     
     osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.4);
-    
     gain.gain.setValueAtTime(balancedVol, audioCtx.currentTime);
     gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
-    
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start();
     osc.stop(audioCtx.currentTime + 0.4);
 }
-
 
 function res() {
     cvs.width = window.innerWidth * 2;
@@ -91,7 +85,7 @@ const CY = cvs.height / 2;
 // --- STAR LOGIC ---
 function createStar(isStatic = false) {
     const angle = Math.random() * Math.PI * 2;
-    const maxDist = Math.min(cvs.width, cvs.height) * 0.9;
+    const maxDist = Math.min(CX, CY) * 1.5;
     const dist = isStatic ? Math.random() * maxDist : maxDist;
     return {
         angle: angle,
@@ -102,10 +96,9 @@ function createStar(isStatic = false) {
         color: Math.random() > 0.5 ? "#fff" : "#70d6ff"
     };
 }
-
 for(let i=0; i<STAR_COUNT; i++) stars.push(createStar(true));
 
-function updateStars(time) {
+function updateStars(t) {
     for (let i = explosions.length - 1; i >= 0; i--) {
         let e = explosions[i];
         ctx.fillStyle = `rgba(112, 214, 255, ${e.alpha})`;
@@ -113,26 +106,21 @@ function updateStars(time) {
         e.r += 2; e.alpha -= 0.04;
         if (e.alpha <= 0) explosions.splice(i, 1);
     }
-
     for (let i = stars.length - 1; i >= 0; i--) {
         let s = stars[i];
         const gravity = s.isSuckedIn ? (40000 / (s.dist * s.dist)) : 0.1;
         s.dist -= (s.speed + gravity);
         s.angle += (gravity * 0.01);
-
         let sx = CX + Math.cos(s.angle) * s.dist;
         let sy = CY + Math.sin(s.angle) * s.dist;
-        const stretch = Math.max(1, (1000 / s.dist) * 5);
-
         ctx.strokeStyle = s.color;
         ctx.lineWidth = s.size;
         ctx.globalAlpha = Math.min(1, s.dist / 400);
         ctx.beginPath();
         ctx.moveTo(sx, sy);
-        ctx.lineTo(CX + Math.cos(s.angle) * (s.dist + stretch), CY + Math.sin(s.angle) * (s.dist + stretch));
+        ctx.lineTo(CX + Math.cos(s.angle) * (s.dist + 15), CY + Math.sin(s.angle) * (s.dist + 15));
         ctx.stroke();
         ctx.globalAlpha = 1;
-
         if (s.dist < 195) {
             explosions.push({ x: sx, y: sy, r: 2, alpha: 1 });
             playImpact(800 + Math.random() * 400, 0.02);
@@ -144,8 +132,9 @@ function updateStars(time) {
 
 // --- UNIVERSE LOGIC ---
 function createUniverse() {
-    // Ensuring start distance is within visible bounds
-    const screenLimit = Math.min(CX, CY) * 0.8;
+    const screenLimit = Math.min(CX, CY) * 0.9;
+    // VARIATION: Some die in 200 frames, some live for 2000
+    const lifeTimer = Math.random() < 0.2 ? 200 : 800 + Math.random() * 1200; 
     return {
         id: Math.floor(Math.random() * 900) + 100,
         angle: Math.random() * Math.PI * 2,
@@ -155,7 +144,7 @@ function createUniverse() {
         hue: Math.random() * 360,
         opacity: 1,
         isDoomed: false, 
-        lifeTimer: 400 + Math.random() * 800,
+        lifeTimer: lifeTimer,
         age: 0
     };
 }
@@ -199,12 +188,6 @@ function drawBlackHole(time) {
     const r = 200;
     ctx.save();
     ctx.translate(CX, CY);
-    const jetGrad = ctx.createLinearGradient(0, -1000, 0, 1000);
-    jetGrad.addColorStop(0, "transparent");
-    jetGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.6)");
-    jetGrad.addColorStop(1, "transparent");
-    ctx.fillStyle = jetGrad;
-    ctx.fillRect(-15, -1000, 30, 2000); 
     ctx.save();
     ctx.rotate(time * 0.4);
     const disk = ctx.createRadialGradient(-50, 0, r, 0, 0, r * 3);
@@ -221,12 +204,9 @@ function loop() {
     const t = Date.now() * 0.001;
     ctx.fillStyle = "#010103";
     ctx.fillRect(0, 0, cvs.width, cvs.height);
-
     updateStars(t);
     drawBlackHole(t);
-
     if (universes.length < MAX_UNIVERSES) universes.push(createUniverse());
-
     for (let i = universes.length - 1; i >= 0; i--) {
         let u = universes[i];
         u.angle += u.speed;
@@ -236,13 +216,12 @@ function loop() {
             u.dist -= 2.5; 
             if (u.dist < 450) u.opacity -= 0.01;
         } else {
-            // Keep within screen bounds
             const maxVisible = Math.min(CX, CY) * 0.9;
             if(u.dist > maxVisible) u.dist = maxVisible;
             u.dist += Math.sin(t + u.id) * 0.5;
         }
         if (u.dist < 180 || u.opacity <= 0) { 
-            playImpact(150, 0.1); // Lower frequency boom for universes
+            playImpact(150, 0.1); 
             universes.splice(i, 1); 
             continue; 
         }
@@ -250,7 +229,6 @@ function loop() {
     }
     requestAnimationFrame(loop);
 }
-
 window.onresize = res;
 loop();
     </script>
