@@ -9,175 +9,79 @@
     </canvas>
     <script>
 const canvas = document.getElementById("myCanvas");
+canvas.width = 5000;
+canvas.height = 5000;
 const ctx = canvas.getContext("2d");
 
-// --- Core Functions ---
-function fillRectWithColor(x, y, width, height, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, width, height);
-}
-
-function fillCircleWithColor(x, y, r, color) {
+// --- Drawing Helpers ---
+function fillRect(x, y, w, h, color) { ctx.fillStyle = color; ctx.fillRect(x, y, w, h); }
+function fillCircle(x, y, r, color) {
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, 2 * Math.PI);
     ctx.fill();
 }
 
-// Function to draw a village scene with multiple snowmen
-function drawVillage(x, y, houseColor, roofColor) {
-    // 1. Snow ground
-    fillRectWithColor(x + 5, y + 55, 70, 20, "white");
-    
-    // 2. Tiny House
-    fillRectWithColor(x + 10, y + 40, 20, 20, houseColor); 
-    ctx.fillStyle = roofColor;
-    ctx.beginPath();
-    ctx.moveTo(x + 5, y + 40);
-    ctx.lineTo(x + 20, y + 25);
-    ctx.lineTo(x + 35, y + 40);
-    ctx.fill();
+/**
+ * Draws a Universe as a High-Def Solar System
+ * @param {number} x, y - Top-left of the 100x100 window
+ * @param {number} hue - Color theme
+ */
+function drawDetailedSolarSystem(x, y, hue) {
+    const cx = x + 50; // Center X
+    const cy = y + 50; // Center Y
 
-    // 3. Snowman #1 (Large)
-    fillCircleWithColor(x + 45, y + 58, 4, "white"); 
-    fillCircleWithColor(x + 45, y + 52, 3, "white"); 
-    fillCircleWithColor(x + 45, y + 48, 2, "white"); 
+    // 1. Deep Space Nebula Background
+    const spaceGrad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 50);
+    spaceGrad.addColorStop(0, `hsla(${hue}, 60%, 15%, 1)`);
+    spaceGrad.addColorStop(1, "#000");
+    fillRect(x, y, 100, 100, spaceGrad);
 
-    // 4. Snowman #2 (Small)
-    fillCircleWithColor(x + 58, y + 60, 3, "white"); 
-    fillCircleWithColor(x + 58, y + 55, 2, "white"); 
-    fillCircleWithColor(x + 58, y + 51, 1.5, "white"); 
+    // 2. The Central Sun (Glowing)
+    const sunGlow = ctx.createRadialGradient(cx, cy, 2, cx, cy, 12);
+    sunGlow.addColorStop(0, `hsl(${hue}, 100%, 85%)`);
+    sunGlow.addColorStop(1, `hsla(${hue}, 100%, 50%, 0)`);
+    fillCircle(cx, cy, 12, sunGlow);
+    fillCircle(cx, cy, 6, "white");
 
-    // 5. Snowman #3 (Small)
-    fillCircleWithColor(x + 68, y + 60, 3, "white"); 
-    fillCircleWithColor(x + 68, y + 55, 2, "white"); 
-    fillCircleWithColor(x + 68, y + 51, 1.5, "white"); 
+    // 3. Planets with Snowmen inhabitants
+    const planetCount = 3 + (hue % 3); 
+    for (let i = 1; i <= planetCount; i++) {
+        // Calculate Orbit
+        const orbitDist = 15 + (i * 10);
+        const angle = (hue * i + (i * 45)) % (Math.PI * 2); 
+        const px = cx + Math.cos(angle) * orbitDist;
+        const py = cy + Math.sin(angle) * orbitDist;
+
+        // Draw Planet
+        const pColor = `hsl(${(hue + i * 40) % 360}, 40%, 50%)`;
+        fillCircle(px, py, 4, pColor);
+
+        // Draw Snowman on Planet (Head and Body)
+        fillCircle(px, py - 4, 2.5, "white"); // Body
+        fillCircle(px, py - 7, 1.5, "white"); // Head
+    }
+
+    // 4. Random Starfield Dust
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    for(let s=0; s<10; s++) {
+        ctx.fillRect(x + (hue*s*17)%95, y + (hue*s*13)%95, 1, 1);
+    }
 }
 
-// Wall Background
-fillRectWithColor(0, 0, 800, 800, "#111");
+// 1. Clear the canvas with the void
+fillRect(0, 0, 5000, 5000, "black");
 
-// --- 100 INDIVIDUAL WINDOW VILLAGES ---
-
-// Row 1
-fillRectWithColor(0, 0, 78, 78, "#1a1a2e"); drawVillage(0, 0, "brown", "darkred");
-fillRectWithColor(80, 0, 78, 78, "#16213e"); drawVillage(80, 0, "tan", "red");
-fillRectWithColor(160, 0, 78, 78, "#1a1a2e"); drawVillage(160, 0, "gray", "black");
-fillRectWithColor(240, 0, 78, 78, "#16213e"); drawVillage(240, 0, "white", "blue");
-fillRectWithColor(320, 0, 78, 78, "#1a1a2e"); drawVillage(320, 0, "gold", "darkgreen");
-fillRectWithColor(400, 0, 78, 78, "#16213e"); drawVillage(400, 0, "bisque", "brown");
-fillRectWithColor(480, 0, 78, 78, "#1a1a2e"); drawVillage(480, 0, "peru", "darkred");
-fillRectWithColor(560, 0, 78, 78, "#16213e"); drawVillage(560, 0, "beige", "orange");
-fillRectWithColor(640, 0, 78, 78, "#1a1a2e"); drawVillage(640, 0, "darkred", "gray");
-fillRectWithColor(720, 0, 78, 78, "#16213e"); drawVillage(720, 0, "white", "purple");
-
-// Row 2
-fillRectWithColor(0, 80, 78, 78, "#2e1a1a"); drawVillage(0, 80, "tan", "darkred");
-fillRectWithColor(80, 80, 78, 78, "#251a2e"); drawVillage(80, 80, "brown", "grey");
-fillRectWithColor(160, 80, 78, 78, "#2e1a1a"); drawVillage(160, 80, "white", "red");
-fillRectWithColor(240, 80, 78, 78, "#251a2e"); drawVillage(240, 80, "orange", "black");
-fillRectWithColor(320, 80, 78, 78, "#2e1a1a"); drawVillage(320, 80, "gray", "darkgreen");
-fillRectWithColor(400, 80, 78, 78, "#251a2e"); drawVillage(400, 80, "gold", "brown");
-fillRectWithColor(480, 80, 78, 78, "#2e1a1a"); drawVillage(480, 80, "cyan", "navy");
-fillRectWithColor(560, 80, 78, 78, "#251a2e"); drawVillage(560, 80, "silver", "darkred");
-fillRectWithColor(640, 80, 78, 78, "#2e1a1a"); drawVillage(640, 80, "bisque", "green");
-fillRectWithColor(720, 80, 78, 78, "#251a2e"); drawVillage(720, 80, "tan", "red");
-
-// Row 3
-fillRectWithColor(0, 160, 78, 78, "#0f3460"); drawVillage(0, 160, "white", "darkred");
-fillRectWithColor(80, 160, 78, 78, "#533483"); drawVillage(80, 160, "yellow", "blue");
-fillRectWithColor(160, 160, 78, 78, "#0f3460"); drawVillage(160, 160, "brown", "orange");
-fillRectWithColor(240, 160, 78, 78, "#533483"); drawVillage(240, 160, "tan", "purple");
-fillRectWithColor(320, 160, 78, 78, "#0f3460"); drawVillage(320, 160, "pink", "darkred");
-fillRectWithColor(400, 160, 78, 78, "#533483"); drawVillage(400, 160, "olive", "white");
-fillRectWithColor(480, 160, 78, 78, "#0f3460"); drawVillage(480, 160, "silver", "black");
-fillRectWithColor(560, 160, 78, 78, "#533483"); drawVillage(560, 160, "darkred", "gold");
-fillRectWithColor(640, 160, 78, 78, "#0f3460"); drawVillage(640, 160, "cyan", "brown");
-fillRectWithColor(720, 160, 78, 78, "#533483"); drawVillage(720, 160, "orange", "green");
-
-// Row 4
-fillRectWithColor(0, 240, 78, 78, "#1b262c"); drawVillage(0, 240, "white", "red");
-fillRectWithColor(80, 240, 78, 78, "#0f4c75"); drawVillage(80, 240, "gray", "darkblue");
-fillRectWithColor(160, 240, 78, 78, "#1b262c"); drawVillage(160, 240, "tan", "green");
-fillRectWithColor(240, 240, 78, 78, "#0f4c75"); drawVillage(240, 240, "brown", "black");
-fillRectWithColor(320, 240, 78, 78, "#1b262c"); drawVillage(320, 240, "pink", "maroon");
-fillRectWithColor(400, 240, 78, 78, "#0f4c75"); drawVillage(400, 240, "bisque", "darkgreen");
-fillRectWithColor(480, 240, 78, 78, "#1b262c"); drawVillage(480, 240, "gold", "orange");
-fillRectWithColor(560, 240, 78, 78, "#0f4c75"); drawVillage(560, 240, "white", "navy");
-fillRectWithColor(640, 240, 78, 78, "#1b262c"); drawVillage(640, 240, "orange", "red");
-fillRectWithColor(720, 240, 78, 78, "#0f4c75"); drawVillage(720, 240, "silver", "purple");
-
-// Row 5
-fillRectWithColor(0, 320, 78, 78, "#30475e"); drawVillage(0, 320, "brown", "white");
-fillRectWithColor(80, 320, 78, 78, "#222831"); drawVillage(80, 320, "white", "red");
-fillRectWithColor(160, 320, 78, 78, "#30475e"); drawVillage(160, 320, "tan", "black");
-fillRectWithColor(240, 320, 78, 78, "#222831"); drawVillage(240, 320, "gray", "gold");
-fillRectWithColor(320, 320, 78, 78, "#30475e"); drawVillage(320, 320, "bisque", "orange");
-fillRectWithColor(400, 320, 78, 78, "#222831"); drawVillage(400, 320, "pink", "purple");
-fillRectWithColor(480, 320, 78, 78, "#30475e"); drawVillage(480, 320, "yellow", "navy");
-fillRectWithColor(560, 320, 78, 78, "#222831"); drawVillage(560, 320, "cyan", "red");
-fillRectWithColor(640, 320, 78, 78, "#30475e"); drawVillage(640, 320, "silver", "maroon");
-fillRectWithColor(720, 320, 78, 78, "#222831"); drawVillage(720, 320, "beige", "black");
-
-// Row 6
-fillRectWithColor(0, 400, 78, 78, "#393e46"); drawVillage(0, 400, "white", "blue");
-fillRectWithColor(80, 400, 78, 78, "#232931"); drawVillage(80, 400, "tan", "green");
-fillRectWithColor(160, 400, 78, 78, "#393e46"); drawVillage(160, 400, "brown", "darkred");
-fillRectWithColor(240, 400, 78, 78, "#232931"); drawVillage(240, 400, "gray", "silver");
-fillRectWithColor(320, 400, 78, 78, "#393e46"); drawVillage(320, 400, "gold", "black");
-fillRectWithColor(400, 400, 78, 78, "#232931"); drawVillage(400, 400, "bisque", "red");
-fillRectWithColor(480, 400, 78, 78, "#393e46"); drawVillage(480, 400, "orange", "navy");
-fillRectWithColor(560, 400, 78, 78, "#232931"); drawVillage(560, 400, "pink", "purple");
-fillRectWithColor(640, 400, 78, 78, "#393e46"); drawVillage(640, 400, "white", "maroon");
-fillRectWithColor(720, 400, 78, 78, "#232931"); drawVillage(720, 400, "yellow", "darkgreen");
-
-// Row 7
-fillRectWithColor(0, 480, 78, 78, "#4e342e"); drawVillage(0, 480, "gray", "black");
-fillRectWithColor(80, 480, 78, 78, "#3e2723"); drawVillage(80, 480, "tan", "red");
-fillRectWithColor(160, 480, 78, 78, "#4e342e"); drawVillage(160, 480, "brown", "white");
-fillRectWithColor(240, 480, 78, 78, "#3e2723"); drawVillage(240, 480, "white", "navy");
-fillRectWithColor(320, 480, 78, 78, "#4e342e"); drawVillage(320, 480, "orange", "darkred");
-fillRectWithColor(400, 480, 78, 78, "#3e2723"); drawVillage(400, 480, "pink", "black");
-fillRectWithColor(480, 480, 78, 78, "#4e342e"); drawVillage(480, 480, "gold", "green");
-fillRectWithColor(560, 480, 78, 78, "#3e2723"); drawVillage(560, 480, "cyan", "purple");
-fillRectWithColor(640, 480, 78, 78, "#4e342e"); drawVillage(640, 480, "silver", "maroon");
-fillRectWithColor(720, 480, 78, 78, "#3e2723"); drawVillage(720, 480, "beige", "red");
-
-// Row 8
-fillRectWithColor(0, 560, 78, 78, "#212121"); drawVillage(0, 560, "white", "red");
-fillRectWithColor(80, 560, 78, 78, "#424242"); drawVillage(80, 560, "brown", "gray");
-fillRectWithColor(160, 560, 78, 78, "#212121"); drawVillage(160, 560, "tan", "blue");
-fillRectWithColor(240, 560, 78, 78, "#424242"); drawVillage(240, 560, "pink", "black");
-fillRectWithColor(320, 560, 78, 78, "#212121"); drawVillage(320, 560, "gold", "purple");
-fillRectWithColor(400, 560, 78, 78, "#424242"); drawVillage(400, 560, "white", "darkgreen");
-fillRectWithColor(480, 560, 78, 78, "#212121"); drawVillage(480, 560, "bisque", "maroon");
-fillRectWithColor(560, 560, 78, 78, "#424242"); drawVillage(560, 560, "orange", "navy");
-fillRectWithColor(640, 560, 78, 78, "#212121"); drawVillage(640, 560, "silver", "red");
-fillRectWithColor(720, 560, 78, 78, "#424242"); drawVillage(720, 560, "gray", "black");
-
-// Row 9
-fillRectWithColor(0, 640, 78, 78, "darkred"); drawVillage(0, 640, "white", "black");
-fillRectWithColor(80, 640, 78, 78, "#400"); drawVillage(80, 640, "tan", "green");
-fillRectWithColor(160, 640, 78, 78, "darkred"); drawVillage(160, 640, "brown", "gold");
-fillRectWithColor(240, 640, 78, 78, "#400"); drawVillage(240, 640, "gray", "red");
-fillRectWithColor(320, 640, 78, 78, "darkred"); drawVillage(320, 640, "bisque", "navy");
-fillRectWithColor(400, 640, 78, 78, "#400"); drawVillage(400, 640, "pink", "purple");
-fillRectWithColor(480, 640, 78, 78, "darkred"); drawVillage(480, 640, "gold", "black");
-fillRectWithColor(560, 640, 78, 78, "#400"); drawVillage(560, 640, "white", "maroon");
-fillRectWithColor(640, 640, 78, 78, "darkred"); drawVillage(640, 640, "tan", "blue");
-fillRectWithColor(720, 640, 78, 78, "#400"); drawVillage(720, 640, "orange", "darkgreen");
-
-// Row 10
-fillRectWithColor(0, 720, 78, 78, "#012"); drawVillage(0, 720, "white", "red");
-fillRectWithColor(80, 720, 78, 78, "#023"); drawVillage(80, 720, "tan", "black");
-fillRectWithColor(160, 720, 78, 78, "#012"); drawVillage(160, 720, "brown", "gray");
-fillRectWithColor(240, 720, 78, 78, "#023"); drawVillage(240, 720, "pink", "purple");
-fillRectWithColor(320, 720, 78, 78, "#012"); drawVillage(320, 720, "gold", "navy");
-fillRectWithColor(400, 720, 78, 78, "#023"); drawVillage(400, 720, "bisque", "darkred");
-fillRectWithColor(480, 720, 78, 78, "#012"); drawVillage(480, 720, "silver", "black");
-fillRectWithColor(560, 720, 78, 78, "#023"); drawVillage(560, 720, "white", "green");
-fillRectWithColor(640, 720, 78, 78, "#012"); drawVillage(640, 720, "orange", "maroon");
-fillRectWithColor(720, 720, 78, 78, "#023"); drawVillage(720, 720, "gray", "red");
+// 2. The 50x50 Grid Loop (2,500 total Universes)
+for (let row = 0; row < 50; row++) {
+    for (let col = 0; col < 50; col++) {
+        const xPos = col * 100;
+        const yPos = row * 100;
+        const universeHue = (row * 7 + col * 11) % 360;
+        
+        drawDetailedSolarSystem(xPos, yPos, universeHue);
+    }
+}
 
     </script>
 </body>
