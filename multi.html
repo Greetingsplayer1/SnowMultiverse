@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Snowman Multiverse: The Great Void</title>
+    <style>body { margin: 0; background: #000; overflow: hidden; }</style>
+</head>
+<body>
+    <canvas id="mc"></canvas>
+    <script>
+const cvs = document.getElementById("mc");
+const ctx = cvs.getContext("2d");
+
+function res() {
+    cvs.width = window.innerWidth * 2;
+    cvs.height = window.innerHeight * 2;
+    cvs.style.width = "100vw";
+    cvs.style.height = "100vh";
+}
+res();
+
+const CX = cvs.width / 2;
+const CY = cvs.height / 2;
+
+function drawSnowman(ctx, x, y, s) {
+    ctx.fillStyle = "white";
+    [ {r:10, y:0}, {r:7, y:-12}, {r:5, y:-22} ].forEach(b => {
+        ctx.beginPath(); ctx.arc(x, y + b.y*s, b.r*s, 0, Math.PI*2); ctx.fill();
+    });
+}
+
+function drawUniverse(x, y, sz, seed, time) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Border & Background
+    ctx.strokeStyle = `hsla(${(seed*137)%360}, 100%, 60%, 0.5)`;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(0, 0, sz, sz);
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, sz, sz);
+
+    // Inner Local Sun
+    const h = (seed * 50) % 360;
+    ctx.fillStyle = `hsl(${h}, 100%, 80%)`;
+    ctx.beginPath(); ctx.arc(sz/2, sz/2, sz/12, 0, Math.PI*2); ctx.fill();
+
+    // Inside Planets - Scaled to fit border
+    const pCount = 3 + (seed % 3);
+    for(let i=1; i <= pCount; i++) {
+        const orbit = (sz/2.5) * (i/pCount);
+        const ang = time * (1/i) + seed;
+        const px = sz/2 + Math.cos(ang) * orbit;
+        const py = sz/2 + Math.sin(ang) * orbit;
+
+        ctx.fillStyle = `hsl(${(h+i*30)%360}, 70%, 50%)`;
+        ctx.beginPath(); ctx.arc(px, py, sz/25, 0, Math.PI*2); ctx.fill();
+        drawSnowman(ctx, px, py - sz/25, sz/300);
+    }
+    ctx.restore();
+}
+
+function drawBlackHole(time) {
+    const r = 180;
+    // Accretion Disk Glow
+    const g = ctx.createRadialGradient(CX, CY, r, CX, CY, r+150);
+    g.addColorStop(0, "rgba(255, 100, 0, 0.8)");
+    g.addColorStop(0.5, "rgba(255, 50, 0, 0.2)");
+    g.addColorStop(1, "transparent");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(CX, CY, r+150, 0, Math.PI*2); ctx.fill();
+
+    // Event Horizon (The Void)
+    ctx.fillStyle = "black";
+    ctx.shadowBlur = 40;
+    ctx.shadowColor = "white";
+    ctx.beginPath(); ctx.arc(CX, CY, r, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0;
+}
+
+function loop() {
+    const t = Date.now() * 0.0005;
+    ctx.fillStyle = "#020205";
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    drawBlackHole(t);
+
+    const universeCount = 12;
+    const sz = 240;
+    for(let i=0; i<universeCount; i++) {
+        // Universal Orbit around Black Hole
+        const dist = 500 + (i * 80);
+        const speed = 0.2 + (1/(i+1));
+        const ang = t * speed + (i * 0.8);
+        const ux = CX + Math.cos(ang) * dist - sz/2;
+        const uy = CY + Math.sin(ang) * dist - sz/2;
+
+        drawUniverse(ux, uy, sz, i, t * 2);
+    }
+    requestAnimationFrame(loop);
+}
+window.onresize = res;
+loop();
+    </script>
+</body>
+</html>
