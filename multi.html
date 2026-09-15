@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Snowman Multiverse: The Eternal Void (nice name)</title>
+    <title>Snowman Multiverse</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
         #overlay {
@@ -134,7 +134,7 @@ function updateStars(t) {
         let sy = center.y + Math.sin(s.angle) * s.dist;
         
         // Calculate stretch (Tail)
-        const tailLength = s.dist < 600 ? 30 : 15; // Stretch more when close
+        const tailLength = s.dist < 500 ? 30 : 15; // Stretch more when close
         let sEndx = center.x + Math.cos(s.angle) * (s.dist + tailLength);
         let sEndy = center.y + Math.sin(s.angle) * (s.dist + tailLength);
 
@@ -178,7 +178,8 @@ function createUniverse() {
 function drawSnowman(ctx, x, y, s, alpha) {
     ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
     [ {r:10, y:0}, {r:7, y:-12}, {r:5, y:-22} ].forEach(b => {
-        ctx.beginPath(); ctx.arc(x, y + b.y*s, b.r*s, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y + b.y*s, b.r*s, 0, Math.PI*2);
+         ctx.fill();
     });
 }
 
@@ -189,8 +190,8 @@ function drawUniverse(u, time) {
     ctx.scale(stretch, 1 / stretch);
     ctx.globalAlpha = u.opacity;
     const sz = u.size;
-    ctx.strokeStyle = u.isDoomed ? `red` : `hsl(${u.hue}, 100%, 70%)`;
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = u.isDoomed ? `red` : `hsl(${u.hue}, 100%, 50%)`;
+    ctx.lineWidth = 7;
     ctx.strokeRect(-sz/2, -sz/2, sz, sz);
     ctx.fillStyle = "black";
     ctx.fillRect(-sz/2, -sz/2, sz, sz);
